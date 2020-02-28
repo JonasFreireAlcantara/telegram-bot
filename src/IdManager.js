@@ -5,8 +5,16 @@ class IdManager {
   }
 
   addNewChat(chatToBeAdded) {
-    this.removeChat(chatToBeAdded);
-    this.chats.push(chatToBeAdded);
+    if (!this.thereExistsSuchChat(chatToBeAdded)) {
+      this.chats.push(chatToBeAdded);
+      return true;
+    }
+
+    return false;
+  }
+
+  thereExistsSuchChat(chatSeeked) {
+    return (this.chats.filter( chat => chat.id === chatSeeked.id)).length !== 0;
   }
 
   removeChat(chatToBeRemoved) {

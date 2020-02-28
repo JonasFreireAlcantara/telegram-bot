@@ -1,9 +1,10 @@
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const idManager = new (require('./IdManager'))();
+require('dotenv').config();
 const app = express();
 
-const token = '1006619247:AAEmj2c9Bw58qBlQbpB-MHvlaiA7vQdTkHw';
+const token = process.env.TELEGRAM_BOT_TOKEN;
 
 const bot = new TelegramBot(token, { polling: true });
 
@@ -18,10 +19,12 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
 
-  idManager.addNewChat(msg.chat);
-  console.log(`Added chat: ${msg.chat.id}`)
+  const wasAdded = idManager.addNewChat(msg.chat);
+  console.log(`Chat: ${msg.chat.id}${wasAdded ? ' - added' : ''}`)
 
-  bot.sendMessage(chatId, '*Pronto Tudo Certo*\n\nVocê já foi registrado', { parse_mode: "Markdown"});
+  if (wasAdded) {
+    bot.sendMessage(chatId, '*Pronto Tudo Certo*\n\nVocê já foi registrado', { parse_mode: "Markdown"});
+  }
 });
 
 app.post('/send/:messageText', (req, res) => {
@@ -36,4 +39,8 @@ app.post('/send/:messageText', (req, res) => {
   return res.json({ message: messageText });
 });
 
-app.listen(3333, () => { console.log('app listen in port 3333') });
+const port = process.env.PORT || 3333;
+
+app.listen(port, () => {
+  console.log(`app listen in port: ${port}`)
+});
